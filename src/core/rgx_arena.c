@@ -11,7 +11,7 @@ rgx_align_up(size_t n, size_t align)
 rgx_arena_t *
 rgx_arena_init(size_t block_size)
 {
-  rgx_arena_t *arena = rgx_memalign(RGX_ARENA_ALIGNMENT, sizeof(*arena));
+  rgx_arena_t *arena = rgx_malloc(sizeof(*arena));
   if (!arena) {
     rgx_log_error("rgx_arena_init: rgx_memalign(arena) FAILED");
     return NULL;
@@ -91,19 +91,41 @@ rgx_arena_alloc(rgx_arena_t *arena, size_t size)
     u_char *p = arena->mdirect->addr;
     return p;
   }
-  if (active->size - active->used < size) {
+  size_t offset = rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
+  if (offset > active->size || size > active->size - offset) {
     rgx_log_info("rgx_arena_alloc: remaining size < size");
     if (rgx_arena_add_chunk(arena) < 0) {
       rgx_log_error("rgx_arena_alloc: rgx_arena_add_chunk FAILED");
       return NULL;
     }
     active = arena->active;
+    offset = rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
   }
-  size_t offset = rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
-  rgx_log_info("rgx_arena_alloc: used = %zu, offset = %zu",
+ rgx_log_info("rgx_arena_alloc: used = %zu, offset = %zu",
                active->used, offset);
   u_char *p = active->start + offset;
   active->used = offset + size;
   return p;
 }
+
+void
+rgx_arena_free(rgx_arena_t *arena)
+{
+  rgx_chunk_t *active = arena->active;
+  while (active) {
+    rgx_chunk_t *p = active;
+    active = active->next;
+    rgx_free(p->start);
+    rgx_free(p);
+  }
+  rgx_overflow_t *mdirect = arena->mdirect;
+  while (mdirect) {
+    rgx_overflow_t *p = mdirect;
+    mdirect = mdirect->next;
+    rgx_free(p->addr);
+    rgx_free(p);
+  }
+  rgx_free(arena);
+}
+
 

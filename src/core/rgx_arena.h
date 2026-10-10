@@ -26,7 +26,8 @@ typedef struct rgx_arena {
 rgx_arena_t *rgx_arena_init(size_t block_size);
 int rgx_arena_add_chunk(rgx_arena_t *arena);
 int rgx_arena_add_overflow(rgx_arena_t *arena, size_t size);
-u_char * rgx_arena_alloc(rgx_arena_t *arena, size_t size);
+u_char *rgx_arena_alloc(rgx_arena_t *arena, size_t size);
+void rgx_arena_free(rgx_arena_t *arena);
 
 #endif
 

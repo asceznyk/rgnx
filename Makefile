@@ -1,28 +1,22 @@
 CC := gcc
-CFLAGS := -g -O0 -Wall -Wextra -Werror -std=c11
+CFLAGS := -g -O0 -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -std=c11
 CPPFLAGS := -D_POSIX_C_SOURCE=200809L -Isrc -Isrc/core
+LDFLAGS := -fsanitize=address
 
-SRC_DIR := src
-TEST_DIR := tests
-OUT_DIR := out
-
-TARGET := $(OUT_DIR)/rgnx
-
-SRCS := $(shell find $(SRC_DIR) -type f -name '*.c')
-OBJS := $(SRCS:$(SRC_DIR)/%.c=$(OUT_DIR)/%.o)
+SRC := $(shell find src -name '*.c')
+OBJ := $(SRC:src/%.c=out/%.o)
+TARGET := out/rgnx
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $@
+$(TARGET): $(OBJ)
+	$(CC) $^ $(LDFLAGS) -o $@
 
-$(OUT_DIR)/%.o: $(SRC_DIR)/%.c
+out/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-.PHONY: clean
-
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf out
 
-
+.PHONY: all clean

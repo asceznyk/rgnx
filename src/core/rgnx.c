@@ -11,6 +11,7 @@ main(void)
   u_char *r = rgx_arena_alloc(arena, 4096);
   u_char *s = rgx_arena_alloc(arena, 1000);
   rgx_log_info("main: p = %p, q = %p, r = %p, s = %p", p, q, r, s);
+  rgx_arena_free(arena);
   return 0;
 }
 
