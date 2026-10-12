@@ -6,16 +6,16 @@
 #define RGX_ARENA_ALIGNMENT 16
 #define RGX_ARENA_BLOCK_SIZE 1024
 
-typedef struct rgx_chunk {
+typedef struct rgx_chunk_s {
   size_t size;
   size_t used;
   u_char *start;
-  struct rgx_chunk *next;
+  struct rgx_chunk_s *next;
 } rgx_chunk_t;
 
-typedef struct rgx_overflow {
+typedef struct rgx_overflow_s {
   u_char *addr;
-  struct rgx_overflow *next;
+  struct rgx_overflow_s *next;
 } rgx_overflow_t;
 
 typedef struct rgx_arena {
