@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/epoll.h>
 
 #include <rgx_types.h>
 #include <rgx_log.h>

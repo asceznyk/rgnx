@@ -13,6 +13,7 @@ struct rgx_event_s {
   unsigned eof:1;
   unsigned pending_eof:1;
   unsigned error:1;
+  int available;
   rgx_event_handler_pt handler;
 };
 
