@@ -16,9 +16,9 @@ typedef struct rgx_connection_s rgx_connection_t;
 
 typedef void (*rgx_event_handler_pt)(rgx_event_t *ev);
 
-#include <rgx_event.h>
 #include <rgx_connection.h>
 #include <rgx_cycle.h>
+#include <rgx_event.h>
 
 #endif
 
