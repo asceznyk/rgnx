@@ -109,7 +109,7 @@ rgx_arena_alloc(rgx_arena_t *arena, size_t size)
 }
 
 void
-rgx_arena_free(rgx_arena_t *arena)
+rgx_arena_destroy(rgx_arena_t *arena)
 {
   rgx_chunk_t *active = arena->active;
   while (active) {

@@ -17,6 +17,7 @@ struct rgx_event_s {
   rgx_event_handler_pt handler;
 };
 
+void rgx_event_init(rgx_cycle_t *cycle);
 void rgx_process_events(rgx_cycle_t *cycle);
 
 #endif

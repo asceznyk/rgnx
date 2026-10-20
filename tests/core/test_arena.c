@@ -14,7 +14,7 @@ test_init(void)
   assert(arena->active->size == RGX_ARENA_BLOCK_SIZE);
   assert(arena->active->used == 0);
   assert(arena->mdirect == NULL);
-  rgx_arena_free(arena);
+  rgx_arena_destroy(arena);
   puts("test_init: initialization");
 }
 
@@ -32,7 +32,7 @@ test_basic_allocation(void)
   memset(b, 'B', 64);
   for (size_t i = 0; i < 32; i++) assert(a[i] == 'A');
   for (size_t i = 0; i < 64; i++) assert(b[i] == 'B');
-  rgx_arena_free(arena);
+  rgx_arena_destroy(arena);
   puts("test_basic_allocation: basic allocation");
 }
 
@@ -46,7 +46,7 @@ test_alignment(void)
     assert(ptr != NULL);
     assert((uintptr_t)ptr % RGX_ARENA_ALIGNMENT == 0);
   }
-  rgx_arena_free(arena);
+  rgx_arena_destroy(arena);
   puts("test_alignment: 16-byte alignment");
 }
 
@@ -65,7 +65,7 @@ test_chunk_growth(void)
   size_t final_chunks = 0;
   for (rgx_chunk_t *chunk = arena->active; chunk != NULL; chunk = chunk->next) final_chunks++;
   assert(final_chunks > initial_chunks);
-  rgx_arena_free(arena);
+  rgx_arena_destroy(arena);
   puts("test_chunk_growth: chunk growth");
 }
 
@@ -80,7 +80,7 @@ test_overflow_allocation(void)
   assert(arena->mdirect != NULL);
   memset(ptr, 0xA5, size);
   for (size_t i = 0; i < size; i++) assert(ptr[i] == 0xA5);
-  rgx_arena_free(arena);
+  rgx_arena_destroy(arena);
   puts("test_overflow_allocation: overflow allocation");
 }
 
@@ -101,7 +101,7 @@ test_multiple_overflows(void)
   memset(b, 'B', size + 1);
   assert(a[0] == 'A');
   assert(b[0] == 'B');
-  rgx_arena_free(arena);
+  rgx_arena_destroy(arena);
   puts("test_multiple_overflows: multiple overflow allocations");
 }
 
@@ -116,7 +116,7 @@ test_chunk_metadata(void)
   assert(ptr != NULL);
   assert(initial->used > 0);
   assert(initial->used <= initial->size);
-  rgx_arena_free(arena);
+  rgx_arena_destroy(arena);
   puts("test_chunk_metadata: chunk metadata");
 }
 

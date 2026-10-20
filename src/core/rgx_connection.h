@@ -23,6 +23,7 @@ struct rgx_connection_s {
   rgx_listening_t *listening;
   rgx_recv_pt recv;
   rgx_send_pt send;
+  size_t sent;
   unsigned close:1;
 };
 

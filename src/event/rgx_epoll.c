@@ -1,9 +1,8 @@
 #include <rgx_core.h>
 
 static int ep = -1;
-static rgx_int_t rgx_epoll_init(rgx_cycle_t *cycle);
 
-static rgx_int_t
+rgx_int_t
 rgx_epoll_init(rgx_cycle_t *cycle)
 {
   if (ep == -1) {
