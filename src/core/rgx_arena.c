@@ -101,8 +101,10 @@ rgx_arena_alloc(rgx_arena_t *arena, size_t size)
     active = arena->active;
     offset = rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
   }
- rgx_log_info("rgx_arena_alloc: used = %zu, offset = %zu",
-               active->used, offset);
+  rgx_log_info(
+    "rgx_arena_alloc: used = %zu, offset = %zu",
+    active->used, offset
+  );
   u_char *p = active->start + offset;
   active->used = offset + size;
   return p;

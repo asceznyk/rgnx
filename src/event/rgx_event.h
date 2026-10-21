@@ -7,6 +7,7 @@ struct rgx_event_s {
   void *data;
   unsigned write:1;
   unsigned active:1;
+  unsigned instance:1;
   unsigned ready:1;
   unsigned delayed:1;
   unsigned timedout:1;
