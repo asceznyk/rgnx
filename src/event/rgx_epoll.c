@@ -18,22 +18,60 @@ rgx_epoll_init(rgx_cycle_t *cycle)
   return RGX_OK;
 }
 
+void
+rgx_epoll_done(rgx_cycle_t *cycle)
+{
+  if (close(ep) == -1) {
+    rgx_log_error("rgx_epoll_done: close(%fd) FAILED!", ep);
+  }
+  ep = -1;
+  rgx_free(event_list);
+  event_list = NULL;
+  nevents = 0;
+}
+
 rgx_int_t
-rgx_epoll_add_connection(rgx_connection_t *c)
+rgx_epoll_add_connection(rgx_connection_t *conn)
 {
   struct epoll_event ee;
   ee.events = EPOLLIN|EPOLLOUT|EPOLLRDHUP|EPOLLET;
-  ee.data.ptr = (void *) ((uintptr_t) c | c->read->instance);
+  ee.data.ptr = (void *) ((uintptr_t) conn | conn->read->instance);
   rgx_log_info(
     "rgx_epoll_add_connection: attempting to add fd = %d events = %08XD",
-    c->fd, ee.events
+    conn->fd, ee.events
   );
-  if (epoll_ctl(ep, EPOLL_CTL_ADD, c->fd, &ee) < 0) {
-    rgx_log_error("rgx_epoll_add_connection: epoll_ctl FAILED!");
+  if (epoll_ctl(ep, EPOLL_CTL_ADD, conn->fd, &ee) == -1) {
+    rgx_log_error(
+      "rgx_epoll_add_connection: epoll_ctl FAILED fd = %d!",
+      conn->fd
+    );
     return RGX_ERROR;
   }
-  c->read->active = 1;
-  c->write->active = 1;
+  conn->read->active = 1;
+  conn->write->active = 1;
+  return RGX_OK;
+}
+
+rgx_int_t
+rgx_epoll_del_connection(rgx_connection_t *conn, rgx_uint_t flags)
+{
+  struct epoll_event ee;
+  if (flags & RGX_CLOSE_EVENT) {
+    conn->read->active = 0;
+    conn->write->active = 0;
+    return RGX_OK;
+  }
+  ee.events = 0;
+  ee.data.ptr = NULL;
+  if (epoll_ctl(ep, EPOLL_CTL_DEL, conn->fd, &ee) == -1) {
+    rgx_log_error(
+      "rgx_epoll_del_connection: epoll_ctl FAILED fd = %d!",
+      conn->fd
+    );
+    return RGX_ERROR;
+  }
+  conn->read->active = 0;
+  conn->write->active = 0;
   return RGX_OK;
 }
 

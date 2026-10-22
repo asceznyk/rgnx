@@ -15,7 +15,7 @@ test_init(void)
   assert(arena->active->used == 0);
   assert(arena->mdirect == NULL);
   rgx_arena_destroy(arena);
-  puts("test_init: initialization");
+  puts("test_init: SUCCESS");
 }
 
 static void
@@ -33,7 +33,7 @@ test_basic_allocation(void)
   for (size_t i = 0; i < 32; i++) assert(a[i] == 'A');
   for (size_t i = 0; i < 64; i++) assert(b[i] == 'B');
   rgx_arena_destroy(arena);
-  puts("test_basic_allocation: basic allocation");
+  puts("test_basic_allocation: SUCCESS");
 }
 
 static void
@@ -47,7 +47,7 @@ test_alignment(void)
     assert((uintptr_t)ptr % RGX_ARENA_ALIGNMENT == 0);
   }
   rgx_arena_destroy(arena);
-  puts("test_alignment: 16-byte alignment");
+  puts("test_alignment: SUCCESS");
 }
 
 static void
@@ -66,7 +66,7 @@ test_chunk_growth(void)
   for (rgx_chunk_t *chunk = arena->active; chunk != NULL; chunk = chunk->next) final_chunks++;
   assert(final_chunks > initial_chunks);
   rgx_arena_destroy(arena);
-  puts("test_chunk_growth: chunk growth");
+  puts("test_chunk_growth: SUCCESS");
 }
 
 static void
@@ -81,7 +81,7 @@ test_overflow_allocation(void)
   memset(ptr, 0xA5, size);
   for (size_t i = 0; i < size; i++) assert(ptr[i] == 0xA5);
   rgx_arena_destroy(arena);
-  puts("test_overflow_allocation: overflow allocation");
+  puts("test_overflow_allocation: SUCCESS");
 }
 
 static void
@@ -102,7 +102,7 @@ test_multiple_overflows(void)
   assert(a[0] == 'A');
   assert(b[0] == 'B');
   rgx_arena_destroy(arena);
-  puts("test_multiple_overflows: multiple overflow allocations");
+  puts("test_multiple_overflows: SUCCESS");
 }
 
 static void
@@ -117,7 +117,7 @@ test_chunk_metadata(void)
   assert(initial->used > 0);
   assert(initial->used <= initial->size);
   rgx_arena_destroy(arena);
-  puts("test_chunk_metadata: chunk metadata");
+  puts("test_chunk_metadata: SUCCESS");
 }
 
 int
@@ -130,7 +130,7 @@ main(void)
   test_overflow_allocation();
   test_multiple_overflows();
   test_chunk_metadata();
-  puts("main: All arena tests passed.");
+  puts("main: All arena tests passed!");
   return 0;
 }
 

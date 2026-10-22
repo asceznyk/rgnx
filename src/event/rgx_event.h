@@ -21,6 +21,8 @@ struct rgx_event_s {
 void rgx_event_init(rgx_cycle_t *cycle);
 void rgx_process_events(rgx_cycle_t *cycle);
 
+#define RGX_CLOSE_EVENT 1
+
 #endif
 
 

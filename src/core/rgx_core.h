@@ -2,6 +2,8 @@
 #define RGX_CORE_H
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 
