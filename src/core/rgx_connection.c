@@ -1,5 +1,9 @@
 #include <rgx_core.h>
 
-//deals with sockets and it's options
+/*rgx_listening_t *
+rgx_create_listening()
+{
+
+}*/
 
 

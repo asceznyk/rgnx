@@ -27,6 +27,8 @@ struct rgx_connection_s {
   unsigned close:1;
 };
 
+//rgx_listening_t *rgx_create_listening(rgx_conf_t *cfg);
+
 #endif
 
 

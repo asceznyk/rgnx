@@ -3,6 +3,8 @@
 
 #include <rgx_core.h>
 
+#define RGX_CLOSE_EVENT 1
+
 struct rgx_event_s {
   void *data;
   unsigned write:1;
@@ -18,10 +20,16 @@ struct rgx_event_s {
   rgx_event_handler_pt handler;
 };
 
+rgx_int_t rgx_epoll_init(rgx_cycle_t *cycle);
+void rgx_epoll_done(rgx_cycle_t *cycle);
+rgx_int_t rgx_epoll_add_connection(rgx_connection_t *conn);
+rgx_int_t rgx_epoll_del_connection(rgx_connection_t *conn, rgx_uint_t flags);
+//rgx_int_t rgx_epoll_add_event(rgx_event_t *ev, rgx_int_t fd, rgx_uint_t events);
+//int rgx_epoll_del_add_event(rgx_event_t *ev, int fd);
+//int rgx_epoll_wait(int timeout);
+
 void rgx_event_init(rgx_cycle_t *cycle);
 void rgx_process_events(rgx_cycle_t *cycle);
-
-#define RGX_CLOSE_EVENT 1
 
 #endif
 

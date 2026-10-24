@@ -20,6 +20,8 @@
 #include <rgx_alloc.h>
 #include <rgx_string.h>
 #include <rgx_arena.h>
+#include <rgx_array.h>
+#include <rgx_conf_file.h>
 
 typedef struct rgx_event_s rgx_event_t;
 typedef struct rgx_connection_s rgx_connection_t;
@@ -28,8 +30,11 @@ typedef void (*rgx_event_handler_pt)(rgx_event_t *ev);
 
 #include <rgx_connection.h>
 #include <rgx_cycle.h>
-#include <rgx_epoll.h>
 #include <rgx_event.h>
+
+#define LF (u_char) '\n'
+#define CR (u_char) '\r'
+#define CRLF "\r\n"
 
 #endif
 
