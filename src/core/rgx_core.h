@@ -1,6 +1,7 @@
 #ifndef RGX_CORE_H
 #define RGX_CORE_H
 
+#include <assert.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,6 +15,9 @@
 #define RGX_DONE -4
 #define RGX_DECLINED -5
 #define RGX_ABORT -6
+
+#define rgx_align_up(n, align) (((n) + (align) - 1) & ~((align) - 1))
+#define rgx_align_down(n, align) ((n) & ~((align) - 1))
 
 #include <rgx_types.h>
 #include <rgx_log.h>

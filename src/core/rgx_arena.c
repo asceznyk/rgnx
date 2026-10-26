@@ -1,13 +1,5 @@
 #include <rgx_core.h>
 
-static size_t rgx_align_up(size_t n, size_t align);
-
-static size_t
-rgx_align_up(size_t n, size_t align)
-{
-  return (n + align - 1) & ~(align - 1);
-}
-
 rgx_arena_t *
 rgx_arena_init(size_t block_size)
 {
@@ -82,6 +74,7 @@ u_char *
 rgx_arena_alloc(rgx_arena_t *arena, size_t size)
 {
   rgx_chunk_t *active = arena->active;
+  rgx_log_info("rgx_arena_alloc: active->used = %zu", active->used);
   if (active->size < size) {
     rgx_log_info("rgx_arena_alloc: passing to rgx_overflow_t..");
     if (rgx_arena_add_overflow(arena, size) < 0) {
@@ -99,12 +92,8 @@ rgx_arena_alloc(rgx_arena_t *arena, size_t size)
       return NULL;
     }
     active = arena->active;
-    offset = rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
+    offset = 0; //rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
   }
-  rgx_log_info(
-    "rgx_arena_alloc: used = %zu, offset = %zu",
-    active->used, offset
-  );
   u_char *p = active->start + offset;
   active->used = offset + size;
   return p;
