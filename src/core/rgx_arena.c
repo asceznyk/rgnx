@@ -36,7 +36,7 @@ rgx_arena_add_chunk(rgx_arena_t *arena)
   rgx_chunk_t *new = rgx_malloc(sizeof(*new));
   if (!new) {
     rgx_log_error("rgx_arena_add_chunk: rgx_malloc FAILED");
-    return -1;
+    return RGX_ERROR;
   }
   new->size = active->size;
   new->used = 0;
@@ -44,11 +44,11 @@ rgx_arena_add_chunk(rgx_arena_t *arena)
   if (!new->start) {
     rgx_log_error("rgx_arena_add_chunk: rgx_malloc FAILED");
     rgx_free(new);
-    return -1;
+    return RGX_ERROR;
   }
   new->next = active;
   arena->active = new;
-  return 0;
+  return RGX_OK;
 }
 
 int
@@ -57,17 +57,17 @@ rgx_arena_add_overflow(rgx_arena_t *arena, size_t size)
   rgx_overflow_t *new = rgx_malloc(sizeof(*new));
   if (!new) {
     rgx_log_error("rgx_arena_add_overflow: rgx_malloc FAILED");
-    return -1;
+    return RGX_ERROR;
   }
   new->addr = rgx_malloc(size);
   if (!new->addr) {
     rgx_log_error("rgx_arena_add_overflow: rgx_malloc FAILED");
     rgx_free(new);
-    return -1;
+    return RGX_ERROR;
   }
   new->next = arena->mdirect;
   arena->mdirect = new;
-  return 0;
+  return RGX_OK;
 }
 
 u_char *
@@ -92,7 +92,7 @@ rgx_arena_alloc(rgx_arena_t *arena, size_t size)
       return NULL;
     }
     active = arena->active;
-    offset = 0; //rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
+    offset = 0;
   }
   u_char *p = active->start + offset;
   active->used = offset + size;
