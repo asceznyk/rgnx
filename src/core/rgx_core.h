@@ -1,6 +1,8 @@
 #ifndef RGX_CORE_H
 #define RGX_CORE_H
 
+#include <stdint.h>
+#include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -19,7 +21,16 @@
 #define rgx_align_up(n, align) (((n) + (align) - 1) & ~((align) - 1))
 #define rgx_align_down(n, align) ((n) & ~((align) - 1))
 
-#include <rgx_types.h>
+typedef unsigned char u_char;
+
+typedef int rgx_int_t;
+typedef unsigned int rgx_uint_t;
+
+typedef struct {
+  size_t len;
+  u_char *data;
+} rgx_str_t;
+
 #include <rgx_log.h>
 #include <rgx_alloc.h>
 #include <rgx_string.h>

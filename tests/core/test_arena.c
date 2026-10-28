@@ -70,7 +70,7 @@ test_chunk_growth(void)
 }
 
 static void
-test_overflow_allocation(void)
+test_direct_allocation(void)
 {
   rgx_arena_t *arena = rgx_arena_init(RGX_ARENA_BLOCK_SIZE);
   assert(arena != NULL);
@@ -81,11 +81,11 @@ test_overflow_allocation(void)
   memset(ptr, 0xA5, size);
   for (size_t i = 0; i < size; i++) assert(ptr[i] == 0xA5);
   rgx_arena_destroy(arena);
-  puts("test_overflow_allocation: SUCCESS");
+  puts("test_direct_allocation: SUCCESS");
 }
 
 static void
-test_multiple_overflows(void)
+test_multiple_directs(void)
 {
   rgx_arena_t *arena = rgx_arena_init(RGX_ARENA_BLOCK_SIZE);
   assert(arena != NULL);
@@ -102,7 +102,7 @@ test_multiple_overflows(void)
   assert(a[0] == 'A');
   assert(b[0] == 'B');
   rgx_arena_destroy(arena);
-  puts("test_multiple_overflows: SUCCESS");
+  puts("test_multiple_directs: SUCCESS");
 }
 
 static void
@@ -127,8 +127,8 @@ main(void)
   test_basic_allocation();
   test_alignment();
   test_chunk_growth();
-  test_overflow_allocation();
-  test_multiple_overflows();
+  test_direct_allocation();
+  test_multiple_directs();
   test_chunk_metadata();
   puts("main: All arena tests passed!");
   return 0;

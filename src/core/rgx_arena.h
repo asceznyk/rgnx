@@ -13,19 +13,19 @@ typedef struct rgx_chunk_s {
   struct rgx_chunk_s *next;
 } rgx_chunk_t;
 
-typedef struct rgx_overflow_s {
+typedef struct rgx_direct_s {
   u_char *addr;
-  struct rgx_overflow_s *next;
-} rgx_overflow_t;
+  struct rgx_direct_s *next;
+} rgx_direct_t;
 
 typedef struct rgx_arena {
   rgx_chunk_t *active;
-  rgx_overflow_t *mdirect;
+  rgx_direct_t *mdirect;
 } rgx_arena_t;
 
 rgx_arena_t *rgx_arena_init(size_t block_size);
 int rgx_arena_add_chunk(rgx_arena_t *arena);
-int rgx_arena_add_overflow(rgx_arena_t *arena, size_t size);
+int rgx_arena_add_direct(rgx_arena_t *arena, size_t size);
 u_char *rgx_arena_alloc(rgx_arena_t *arena, size_t size);
 void rgx_arena_destroy(rgx_arena_t *arena);
 

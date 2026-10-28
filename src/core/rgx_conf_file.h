@@ -1,6 +1,8 @@
 #ifndef RGX_CONF_FILE_H
 #define RGX_CONF_FILE_H
 
+#include <rgx_core.h>
+
 typedef struct rgx_location_conf_s {
   rgx_str_t path;
   rgx_str_t alias;
@@ -32,9 +34,10 @@ typedef struct rgx_http_conf_s {
 
 typedef struct rgx_conf_tree_s {
   rgx_http_conf_t http;
+  rgx_arena_t *arena;
 } rgx_conf_tree_t;
 
-rgx_conf_tree_t *rgx_parse_conf_file(rgx_str_t *filename);
+rgx_conf_tree_t *rgx_read_conf_file(rgx_str_t *filename);
 
 #endif
 
