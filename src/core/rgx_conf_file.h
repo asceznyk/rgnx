@@ -3,6 +3,21 @@
 
 #include <rgx_core.h>
 
+#define RGX_CONF_TOKEN_MAX 1024
+
+typedef enum {
+  RGX_CONF_TOKEN_WORD,
+  RGX_CONF_TOKEN_LBRACE,
+  RGX_CONF_TOKEN_RBRACE,
+  RGX_CONF_TOKEN_SEMICOLON,
+  RGX_CONF_TOKEN_EOF
+} rgx_conf_token_type_t;
+
+typedef struct {
+  rgx_conf_token_type_t type;
+  rgx_str_t value;
+} rgx_conf_token_t;
+
 typedef struct rgx_location_conf_s {
   rgx_str_t path;
   rgx_str_t alias;
