@@ -52,7 +52,11 @@ typedef struct rgx_conf_tree_s {
   rgx_arena_t *arena;
 } rgx_conf_tree_t;
 
-rgx_conf_tree_t *rgx_read_conf_file(rgx_str_t *filename);
+rgx_conf_tree_t *rgx_conf_tree_init(size_t block_size);
+rgx_int_t rgx_conf_file_read(
+  rgx_conf_tree_t *tree, rgx_str_t *filename
+);
+void rgx_conf_tree_destroy(rgx_conf_tree_t *tree);
 
 #endif
 

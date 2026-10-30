@@ -8,7 +8,9 @@ test_read_conf_file()
     .data = cpath,
     .len = sizeof(cpath)-1
   };
-  rgx_read_conf_file(&path);
+  rgx_conf_tree_t *tree = rgx_conf_tree_init(RGX_ARENA_BLOCK_SIZE);
+  rgx_conf_file_read(tree, &path);
+  rgx_conf_tree_destroy(tree);
 }
 
 int
