@@ -42,6 +42,7 @@ typedef struct {
 #include <rgx_string.h>
 #include <rgx_arena.h>
 #include <rgx_array.h>
+#include <rgx_list.h>
 #include <rgx_conf_file.h>
 
 typedef struct rgx_event_s rgx_event_t;

@@ -4,7 +4,7 @@ static rgx_int_t rgx_lex_conf_file(
   rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp
 );
 static rgx_int_t rgx_parse_conf_block(
-  rgx_conf_tree_t *tree, rgx_array_t *tokens, rgx_uint_t *i
+  void *root, rgx_array_t *tokens, rgx_uint_t *i
 );
 static rgx_int_t rgx_parse_conf_tree(
   rgx_conf_tree_t *tree, rgx_array_t *tokens
@@ -69,15 +69,25 @@ rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
 }
 
 static rgx_int_t
-rgx_parse_conf_block(rgx_conf_tree_t *tree, rgx_array_t *tokens, rgx_uint_t *i)
+rgx_parse_conf_block(void *root, rgx_array_t *tokens, rgx_uint_t *i)
 {
-  rgx_conf_token_t token = ((rgx_conf_token_t *)tokens->elts)[(*i)];
+  rgx_conf_token_t *elts = ((rgx_conf_token_t *)tokens->elts);
+  rgx_conf_token_t token = elts[*i];
   rgx_log_info(
     "rgx_parse_conf_tree: token = %.*s, type = %d",
     (int)token.value.len,
     token.value.data,
     token.type
-  ); //TODO: here and a lot more!!
+  );
+  /*if (rgx_memcmp("http", token.value.data, token.value.len) == 0) {
+    *i += 1;
+    token = elts[*i];
+    if (token.type != RGX_CONF_TOKEN_LBRACE) {
+      rgx_log_error("rgx_parse_conf_block: no left brace after `http`!");
+      return RGX_ERROR;
+    }
+    root->http = (rgx_http_conf_t){0};
+  }*/
   *i += 1;
   return RGX_OK;
 }

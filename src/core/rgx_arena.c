@@ -1,5 +1,8 @@
 #include <rgx_core.h>
 
+static rgx_int_t rgx_arena_add_chunk(rgx_arena_t *arena);
+static rgx_int_t rgx_arena_add_direct(rgx_arena_t *arena, size_t size);
+
 rgx_arena_t *
 rgx_arena_init(size_t block_size)
 {
@@ -29,7 +32,7 @@ rgx_arena_init(size_t block_size)
   return arena;
 }
 
-int
+static rgx_int_t
 rgx_arena_add_chunk(rgx_arena_t *arena)
 {
   rgx_chunk_t *active = arena->active;
@@ -51,7 +54,7 @@ rgx_arena_add_chunk(rgx_arena_t *arena)
   return RGX_OK;
 }
 
-int
+static rgx_int_t
 rgx_arena_add_direct(rgx_arena_t *arena, size_t size)
 {
   rgx_direct_t *new = rgx_malloc(sizeof(*new));

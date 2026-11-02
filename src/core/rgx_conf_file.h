@@ -32,19 +32,19 @@ typedef struct rgx_upstream_server_s {
 
 typedef struct rgx_upstream_conf_s {
   rgx_str_t name;
-  rgx_array_t servers;
+  rgx_list_t servers;
   rgx_uint_t keepalive;
 } rgx_upstream_conf_t;
 
 typedef struct rgx_server_conf_s {
   rgx_uint_t port;
   rgx_int_t backlog;
-  rgx_array_t locations;
+  rgx_list_t locations;
 } rgx_server_conf_t;
 
 typedef struct rgx_http_conf_s {
-  rgx_array_t upstreams;
-  rgx_array_t servers;
+  rgx_list_t upstreams;
+  rgx_list_t servers;
 } rgx_http_conf_t;
 
 typedef struct rgx_conf_tree_s {
