@@ -5,6 +5,12 @@
 
 #define RGX_CONF_TOKEN_MAX 1024
 
+#define RGX_CONF_DIRECTIVE_HTTP "http"
+#define RGX_CONF_DIRECTIVE_SERVER "server"
+#define RGX_CONF_DIRECTIVE_UPSTREAM "upstream"
+#define RGX_CONF_DIRECTIVE_LOCATION "location"
+#define RGX_CONF_DIRECTIVE_KEEPALIVE "keepalive"
+
 typedef enum {
   RGX_CONF_TOKEN_WORD,
   RGX_CONF_TOKEN_LBRACE,
@@ -17,6 +23,15 @@ typedef struct {
   rgx_conf_token_type_t type;
   rgx_str_t value;
 } rgx_conf_token_t;
+
+typedef enum {
+  RGX_CONF_CTX_MAIN,
+  RGX_CONF_CTX_HTTP,
+  RGX_CONF_CTX_UPSTREAM,
+  RGX_CONF_CTX_SERVER,
+  RGX_CONF_CTX_LOCATION,
+  RGX_CONF_CTX_UPSERVER,
+} rgx_conf_ctx_t;
 
 typedef struct rgx_location_conf_s {
   rgx_str_t path;
