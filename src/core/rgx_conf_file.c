@@ -3,8 +3,18 @@
 static rgx_int_t rgx_lex_conf_file(
   rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp
 );
+static rgx_int_t rgx_parse_upstream_block(
+  rgx_upstream_conf_t *upstream, rgx_conf_parser_t *state
+);
+static rgx_int_t rgx_parse_http_block(
+  rgx_http_conf_t *http, rgx_conf_parser_t *state
+);
+static rgx_int_t rgx_parse_main_block(
+  rgx_conf_tree_t *root, rgx_conf_parser_t *state
+);
 static rgx_int_t rgx_parse_conf_block(
-  void *root, rgx_conf_ctx_t ctx, rgx_array_t *tokens, rgx_uint_t *i
+  void *root, rgx_arena_t *arena, rgx_conf_ctx_t ctx,
+  rgx_array_t *tokens, rgx_uint_t *i
 );
 static rgx_int_t rgx_parse_conf_tree(
   rgx_conf_tree_t *tree, rgx_array_t *tokens
@@ -62,55 +72,77 @@ rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
 }
 
 static rgx_int_t
-rgx_parse_conf_block(
-  void *root, rgx_conf_ctx_t ctx, rgx_array_t *tokens, rgx_uint_t *i
+rgx_parse_upstream_block(
+  rgx_upstream_conf_t *upstream, rgx_conf_parser_t *state
 )
 {
-  rgx_conf_tree_t *conf = NULL;
+  rgx_arena_t *arena = state->arena;
+  rgx_array_t *tokens = state->tokens; //TODO: parse this!
+  return RGX_ERROR;
+}
+
+static rgx_int_t
+rgx_parse_http_block(rgx_http_conf_t *http, rgx_conf_parser_t *state)
+{
+  rgx_arena_t *arena = state->arena;
+  rgx_array_t *tokens = state->tokens;
+  rgx_list_init(&http->upstreams, arena, 1, sizeof(rgx_upstream_conf_t));
+  rgx_list_init(&http->servers, arena, 1, sizeof(rgx_server_conf_t));
   rgx_conf_token_t *elts = ((rgx_conf_token_t *)tokens->elts);
-  rgx_conf_token_t token = elts[*i];
-  switch (ctx) {
-    case RGX_CONF_CTX_MAIN:
-      conf = root;
-      conf->http = (rgx_http_conf_t){0};
-      break;
-    default:
-      break;
-  }
-  if (
-    ctx == RGX_CONF_CTX_MAIN &&
-    token.value.len == 4 &&
-    rgx_memcmp(RGX_CONF_DIRECTIVE_HTTP, token.value.data, token.value.len) == 0
-  ) {
-    *i += 1;
-    token = elts[*i];
-    if (token.type != RGX_CONF_TOKEN_LBRACE) {
-      rgx_log_error("rgx_parse_conf_block: no `{` after `http`!");
-      return RGX_ERROR;
-    }
-    *i += 1;
-    return rgx_parse_conf_block(&conf->http, RGX_CONF_CTX_HTTP, tokens, i);
-  }
-  if (
-    ctx == RGX_CONF_CTX_HTTP &&
+  rgx_conf_token_t token = elts[state->pos];
+  while (
     token.value.len == 8 &&
     rgx_memcmp(
       RGX_CONF_DIRECTIVE_UPSTREAM, token.value.data, token.value.len
     ) == 0
   ) {
-    *i += 1;
-    token = elts[*i];
+    state->pos++;
+    token = elts[state->pos];
     if (token.type != RGX_CONF_TOKEN_WORD) {
       rgx_log_error("rgx_parse_conf_block: no name for `upstream`!");
       return RGX_ERROR;
     }
-    //TODO: complete this crap, and test arena for overwrites!!
-    /* *i += 1;
-    token = elts[*i];
+    rgx_str_t name = (rgx_str_t){0};
+    name.len = token.value.len;
+    name.data = rgx_arena_alloc(arena, token.value.len);
+    rgx_memcpy(name.data, token.value.data, token.value.len);
+    state->pos++;
+    token = elts[state->pos];
     if (token.type != RGX_CONF_TOKEN_LBRACE) {
-      rgx_log_error("rgx_parse_conf_block: no `{` after `%.*s`");
+      rgx_log_error(
+        "rgx_parse_conf_block: no `{` after `%.*s`",
+        (int)elts[state->pos - 1].value.len,
+        elts[state->pos - 1].value.data
+      );
       return RGX_ERROR;
-    }*/
+    }
+    state->pos++;
+    rgx_upstream_conf_t *upstream = rgx_list_push(&http->upstreams);
+    upstream->name = name;
+    return rgx_parse_upstream_block(upstream, state);
+  }
+  return RGX_OK;
+}
+
+static rgx_int_t
+rgx_parse_main_block(rgx_conf_tree_t *root, rgx_conf_parser_t *state)
+{
+  rgx_array_t *tokens = state->tokens;
+  rgx_conf_token_t *elts = ((rgx_conf_token_t *)tokens->elts);
+  rgx_conf_token_t token = elts[state->pos];
+  if (
+    token.value.len == 4 &&
+    rgx_memcmp(RGX_CONF_DIRECTIVE_HTTP, token.value.data, token.value.len) == 0
+  ) {
+    state->pos++;
+    token = elts[state->pos];
+    if (token.type != RGX_CONF_TOKEN_LBRACE) {
+      rgx_log_error("rgx_parse_conf_block: no `{` after `http`!");
+      return RGX_ERROR;
+    }
+    state->pos++;
+    root->http = (rgx_http_conf_t){0};
+    return rgx_parse_http_block(&root->http, state);
   }
   return RGX_OK;
 }
@@ -118,16 +150,21 @@ rgx_parse_conf_block(
 static rgx_int_t
 rgx_parse_conf_tree(rgx_conf_tree_t *tree, rgx_array_t *tokens)
 {
-  rgx_uint_t i = 0;
   rgx_conf_token_t *elts = tokens->elts;
-  while (i < tokens->nelts) {
+  rgx_conf_parser_t *state = (void *)rgx_arena_alloc(
+    tree->arena, sizeof(rgx_conf_parser_t)
+  );
+  state->arena = tree->arena;
+  state->tokens = tokens;
+  state->pos = 0;
+  while (state->pos < tokens->nelts) {
     if (
-      rgx_parse_conf_block(tree, RGX_CONF_CTX_MAIN, tokens, &i) != RGX_OK
+      rgx_parse_main_block(tree, state) != RGX_OK
     ) {
-      rgx_log_error("rgx_parse_conf_tree: rgx_parse_conf_block FAILED!");
+      rgx_log_error("rgx_parse_conf_tree: rgx_parse_main_block FAILED!");
       return RGX_ERROR;
     }
-    if (elts[i].type == RGX_CONF_TOKEN_EOF)
+    if (elts[state->pos].type == RGX_CONF_TOKEN_EOF)
       break;
   }
   return RGX_OK;

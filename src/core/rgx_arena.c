@@ -76,6 +76,7 @@ rgx_arena_add_direct(rgx_arena_t *arena, size_t size)
 u_char *
 rgx_arena_alloc(rgx_arena_t *arena, size_t size)
 {
+  assert(size > 0);
   rgx_chunk_t *active = arena->active;
   rgx_log_info("rgx_arena_alloc: active->used = %zu", active->used);
   if (active->size < size) {

@@ -120,6 +120,77 @@ test_chunk_metadata(void)
   puts("test_chunk_metadata: SUCCESS");
 }
 
+static void
+test_allocation_no_overwrite(void)
+{
+  rgx_arena_t *arena = rgx_arena_init(256);
+  assert(arena != NULL);
+  u_char *a = rgx_arena_alloc(arena, 32);
+  u_char *b = rgx_arena_alloc(arena, 64);
+  u_char *c = rgx_arena_alloc(arena, 16);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(c != NULL);
+  memset(a, 0xAA, 32);
+  memset(b, 0xBB, 64);
+  memset(c, 0xCC, 16);
+  u_char *d = rgx_arena_alloc(arena, 32);
+  assert(d != NULL);
+  memset(d, 0xDD, 32);
+  for (size_t i = 0; i < 32; i++) assert(a[i] == 0xAA);
+  for (size_t i = 0; i < 64; i++) assert(b[i] == 0xBB);
+  for (size_t i = 0; i < 16; i++) assert(c[i] == 0xCC);
+  for (size_t i = 0; i < 32; i++) assert(d[i] == 0xDD);
+  rgx_arena_destroy(arena);
+  puts("test_allocation_no_overwrite: SUCCESS");
+}
+
+static void
+test_chunk_growth_no_overwrite(void)
+{
+  rgx_arena_t *arena = rgx_arena_init(128);
+  assert(arena != NULL);
+  u_char *a = rgx_arena_alloc(arena, 64);
+  u_char *b = rgx_arena_alloc(arena, 64);
+  assert(a != NULL);
+  assert(b != NULL);
+  memset(a, 0xAA, 64);
+  memset(b, 0xBB, 64);
+  u_char *c = rgx_arena_alloc(arena, 64);
+  assert(c != NULL);
+  memset(c, 0xCC, 64);
+  assert(arena->active != NULL);
+  assert(arena->active->next != NULL);
+  for (size_t i = 0; i < 64; i++) assert(a[i] == 0xAA);
+  for (size_t i = 0; i < 64; i++) assert(b[i] == 0xBB);
+  for (size_t i = 0; i < 64; i++) assert(c[i] == 0xCC);
+  rgx_arena_destroy(arena);
+  puts("test_chunk_growth_no_overwrite: SUCCESS");
+}
+
+static void
+test_direct_allocation_no_overwrite(void)
+{
+  rgx_arena_t *arena = rgx_arena_init(128);
+  assert(arena != NULL);
+  size_t size = 256;
+  u_char *a = rgx_arena_alloc(arena, size);
+  u_char *b = rgx_arena_alloc(arena, size);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(a != b);
+  memset(a, 0xAA, size);
+  memset(b, 0xBB, size);
+  u_char *c = rgx_arena_alloc(arena, 64);
+  assert(c != NULL);
+  memset(c, 0xCC, 64);
+  for (size_t i = 0; i < size; i++) assert(a[i] == 0xAA);
+  for (size_t i = 0; i < size; i++) assert(b[i] == 0xBB);
+  for (size_t i = 0; i < 64; i++) assert(c[i] == 0xCC);
+  rgx_arena_destroy(arena);
+  puts("test_direct_allocation_no_overwrite: SUCCESS");
+}
+
 int
 main(void)
 {
@@ -130,6 +201,9 @@ main(void)
   test_direct_allocation();
   test_multiple_directs();
   test_chunk_metadata();
+  test_allocation_no_overwrite();
+  test_chunk_growth_no_overwrite();
+  test_direct_allocation_no_overwrite();
   puts("main: All arena tests passed!");
   return 0;
 }

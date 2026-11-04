@@ -3,6 +3,7 @@
 
 #include <rgx_core.h>
 
+#define RGX_CONF_LIST_MIN 16
 #define RGX_CONF_TOKEN_MAX 1024
 
 #define RGX_CONF_DIRECTIVE_HTTP "http"
@@ -32,6 +33,12 @@ typedef enum {
   RGX_CONF_CTX_LOCATION,
   RGX_CONF_CTX_UPSERVER,
 } rgx_conf_ctx_t;
+
+typedef struct {
+  rgx_array_t *tokens;
+  rgx_uint_t pos;
+  rgx_arena_t *arena;
+} rgx_conf_parser_t;
 
 typedef struct rgx_location_conf_s {
   rgx_str_t path;
