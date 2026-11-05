@@ -47,10 +47,10 @@ typedef struct rgx_location_conf_s {
   rgx_uint_t proxy_http_version;
 } rgx_location_conf_t;
 
-typedef struct rgx_upstream_server_s {
+typedef struct rgx_upserver_conf_s {
   rgx_str_t host;
   rgx_uint_t port;
-} rgx_upstream_server_t;
+} rgx_upserver_conf_t;
 
 typedef struct rgx_upstream_conf_s {
   rgx_str_t name;

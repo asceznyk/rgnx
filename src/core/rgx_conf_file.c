@@ -1,7 +1,14 @@
 #include <rgx_core.h>
 
+static void rgx_log_tokens(rgx_array_t *tokens);
+static rgx_int_t rgx_add_token(
+  rgx_array_t *tokens, rgx_arena_t *arena, rgx_token_buf_t *tbuf
+);
 static rgx_int_t rgx_lex_conf_file(
   rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp
+);
+static rgx_int_t rgx_parse_host_port(
+  rgx_upserver_conf_t *upserver, rgx_conf_parser_t *state, rgx_str_t addr
 );
 static rgx_int_t rgx_parse_upstream_block(
   rgx_upstream_conf_t *upstream, rgx_conf_parser_t *state
@@ -21,6 +28,33 @@ static rgx_int_t rgx_parse_conf_tree(
 );
 static rgx_int_t rgx_read_conf_tree(rgx_conf_tree_t *tree, FILE *fp);
 
+static void
+rgx_log_tokens(rgx_array_t *tokens)
+{
+  rgx_uint_t i = 0;
+  rgx_conf_token_t *elts = tokens->elts;
+  while (i < tokens->nelts) {
+    rgx_log_info(
+      "rgx_log_tokens: token = %.*s -- i = %zu",
+      (int)elts[i].value.len, elts[i].value.data, i
+    );
+    i++;
+  }
+}
+
+static rgx_int_t
+rgx_add_token(rgx_array_t *tokens, rgx_arena_t *arena, rgx_token_buf_t *tbuf)
+{
+  rgx_conf_token_t *token = rgx_array_push(tokens);
+  token->type = RGX_CONF_TOKEN_WORD;
+  token->value = (rgx_str_t){0};
+  token->value.data = rgx_arena_alloc(arena, tbuf->len);
+  rgx_memcpy(token->value.data, tbuf->data, tbuf->len);
+  token->value.len = tbuf->len;
+  tbuf->len = 0;
+  return RGX_OK;
+}
+
 static rgx_int_t
 rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
 {
@@ -33,6 +67,9 @@ rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
     if (tbuf.len >= tbuf.capacity)
       return RGX_ERROR;
     if (ch == ';') {
+      if (tbuf.len > 0) {
+        rgx_add_token(tokens, arena, &tbuf);
+      }
       rgx_conf_token_t *token = rgx_array_push(tokens);
       token->type = RGX_CONF_TOKEN_SEMICOLON;
       token->value = (rgx_str_t) {
@@ -42,6 +79,9 @@ rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
       continue;
     }
     if (ch == '{' || ch == '}') {
+      if (tbuf.len > 0) {
+        rgx_add_token(tokens, arena, &tbuf);
+      }
       rgx_conf_token_t *token = rgx_array_push(tokens);
       token->type = (ch == '{') ? RGX_CONF_TOKEN_LBRACE : RGX_CONF_TOKEN_RBRACE;
       token->value = (rgx_str_t) {
@@ -50,16 +90,10 @@ rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
       };
       continue;
     }
-    if (ch == ' ' || ch == CR || ch == LF) {
+    if (ch == ' ' || ch == LF) {
       if (tbuf.len == 0)
         continue;
-      rgx_conf_token_t *token = rgx_array_push(tokens);
-      token->type = RGX_CONF_TOKEN_WORD;
-      token->value = (rgx_str_t){0};
-      token->value.data = rgx_arena_alloc(arena, tbuf.len);
-      rgx_memcpy(token->value.data, tbuf.data, tbuf.len);
-      token->value.len = tbuf.len;
-      tbuf.len = 0;
+      rgx_add_token(tokens, arena, &tbuf);
       continue;
     }
     tbuf.data[tbuf.len++] = (u_char) ch;
@@ -68,6 +102,48 @@ rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
   token->type = RGX_CONF_TOKEN_EOF;
   token->value = (rgx_str_t){0};
   rgx_free(tbuf.data);
+  rgx_log_tokens(tokens);
+  return RGX_OK;
+}
+
+static rgx_int_t
+rgx_parse_host_port(
+  rgx_upserver_conf_t *upserver, rgx_conf_parser_t *state, rgx_str_t addr
+)
+{
+  upserver->host = (rgx_str_t){0};
+  u_char *colon = rgx_find_last(addr.data, addr.len, ':');
+  if (!colon || colon == addr.data) {
+    rgx_log_error("rgx_parse_host_port: `:` missing in address");
+    return RGX_ERROR;
+  }
+  size_t host_len = colon - addr.data;
+  u_char *port = colon + 1;
+  u_char *end = addr.data + addr.len;
+  if (port == end) {
+    rgx_log_error("rgx_parse_host_port: missing port number!");
+    return RGX_ERROR;
+  }
+  rgx_uint_t v = 0;
+  for (; port < end; port++) {
+    if (*port < '0' || *port > '9') {
+      rgx_log_error("rgx_parse_host_port: port is not a number?");
+      return RGX_ERROR;
+    }
+    v = v * 10 + (*port - '0');
+    if (v > 65535) {
+      rgx_log_error("rgx_parse_host_port: port value > 65535");
+      return RGX_ERROR;
+    }
+  }
+  if (v < 1) {
+    rgx_log_error("rgx_parse_host_port: port is not valid!");
+    return RGX_ERROR;
+  };
+  upserver->host.data = rgx_arena_alloc(state->arena, host_len);
+  rgx_memcpy(upserver->host.data, addr.data, host_len);
+  upserver->host.len = host_len;
+  upserver->port = v;
   return RGX_OK;
 }
 
@@ -77,7 +153,29 @@ rgx_parse_upstream_block(
 )
 {
   rgx_arena_t *arena = state->arena;
-  rgx_array_t *tokens = state->tokens; //TODO: parse this!
+  rgx_array_t *tokens = state->tokens;
+  rgx_list_init(&upstream->servers, arena, 1, sizeof(rgx_upserver_conf_t));
+  rgx_conf_token_t *elts = ((rgx_conf_token_t *)tokens->elts);
+  rgx_conf_token_t token = elts[state->pos];
+  while (
+    token.value.len == 6 &&
+    rgx_memcmp(RGX_CONF_DIRECTIVE_SERVER, token.value.data, 6) == 0
+  ) {
+    if (elts[state->pos+1].type != RGX_CONF_TOKEN_WORD) {
+      rgx_log_error("rgx_parse_upstream_block: server block has mistakes");
+      return RGX_ERROR;
+    }
+    if (elts[state->pos+2].type != RGX_CONF_TOKEN_SEMICOLON) {
+      rgx_log_error("rgx_parse_upstream_block: missing `;`");
+      return RGX_ERROR;
+    }
+    token = elts[++state->pos];
+    rgx_upserver_conf_t *upserver = rgx_list_push(&upstream->servers);
+    if (rgx_parse_host_port(upserver, state, token.value) != RGX_OK) {
+      rgx_log_error("rgx_parse_upstream_block: host or port is not correct");
+      return RGX_ERROR;
+    }
+  }
   return RGX_ERROR;
 }
 
@@ -88,16 +186,13 @@ rgx_parse_http_block(rgx_http_conf_t *http, rgx_conf_parser_t *state)
   rgx_array_t *tokens = state->tokens;
   rgx_list_init(&http->upstreams, arena, 1, sizeof(rgx_upstream_conf_t));
   rgx_list_init(&http->servers, arena, 1, sizeof(rgx_server_conf_t));
-  rgx_conf_token_t *elts = ((rgx_conf_token_t *)tokens->elts);
+  rgx_conf_token_t *elts = tokens->elts;
   rgx_conf_token_t token = elts[state->pos];
   while (
     token.value.len == 8 &&
-    rgx_memcmp(
-      RGX_CONF_DIRECTIVE_UPSTREAM, token.value.data, token.value.len
-    ) == 0
+    rgx_memcmp(RGX_CONF_DIRECTIVE_UPSTREAM, token.value.data, 8) == 0
   ) {
-    state->pos++;
-    token = elts[state->pos];
+    token = elts[++state->pos];
     if (token.type != RGX_CONF_TOKEN_WORD) {
       rgx_log_error("rgx_parse_conf_block: no name for `upstream`!");
       return RGX_ERROR;
@@ -106,8 +201,7 @@ rgx_parse_http_block(rgx_http_conf_t *http, rgx_conf_parser_t *state)
     name.len = token.value.len;
     name.data = rgx_arena_alloc(arena, token.value.len);
     rgx_memcpy(name.data, token.value.data, token.value.len);
-    state->pos++;
-    token = elts[state->pos];
+    token = elts[++state->pos];
     if (token.type != RGX_CONF_TOKEN_LBRACE) {
       rgx_log_error(
         "rgx_parse_conf_block: no `{` after `%.*s`",
@@ -128,7 +222,7 @@ static rgx_int_t
 rgx_parse_main_block(rgx_conf_tree_t *root, rgx_conf_parser_t *state)
 {
   rgx_array_t *tokens = state->tokens;
-  rgx_conf_token_t *elts = ((rgx_conf_token_t *)tokens->elts);
+  rgx_conf_token_t *elts = tokens->elts;
   rgx_conf_token_t token = elts[state->pos];
   if (
     token.value.len == 4 &&

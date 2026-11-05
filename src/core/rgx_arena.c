@@ -78,9 +78,9 @@ rgx_arena_alloc(rgx_arena_t *arena, size_t size)
 {
   assert(size > 0);
   rgx_chunk_t *active = arena->active;
-  rgx_log_info("rgx_arena_alloc: active->used = %zu", active->used);
+  rgx_log_debug("rgx_arena_alloc: active->used = %zu", active->used);
   if (active->size < size) {
-    rgx_log_info("rgx_arena_alloc: passing to rgx_direct_t..");
+    rgx_log_debug("rgx_arena_alloc: passing to rgx_direct_t..");
     if (rgx_arena_add_direct(arena, size) < 0) {
       rgx_log_error("rgx_arena_alloc: rgx_arena_add_direct FAILED");
       return NULL;
@@ -90,7 +90,7 @@ rgx_arena_alloc(rgx_arena_t *arena, size_t size)
   }
   size_t offset = rgx_align_up(active->used, RGX_ARENA_ALIGNMENT);
   if (offset > active->size || size > active->size - offset) {
-    rgx_log_info("rgx_arena_alloc: remaining size < size");
+    rgx_log_debug("rgx_arena_alloc: remaining size < size");
     if (rgx_arena_add_chunk(arena) < 0) {
       rgx_log_error("rgx_arena_alloc: rgx_arena_add_chunk FAILED");
       return NULL;
