@@ -21,6 +21,12 @@ typedef enum {
 } rgx_conf_token_type_t;
 
 typedef struct {
+  size_t len;
+  size_t capacity;
+  u_char *data;
+} rgx_token_buf_t;
+
+typedef struct {
   rgx_conf_token_type_t type;
   rgx_str_t value;
 } rgx_conf_token_t;
@@ -54,19 +60,19 @@ typedef struct rgx_upserver_conf_s {
 
 typedef struct rgx_upstream_conf_s {
   rgx_str_t name;
-  rgx_list_t servers;
+  rgx_array_t servers;
   rgx_uint_t keepalive;
 } rgx_upstream_conf_t;
 
 typedef struct rgx_server_conf_s {
   rgx_uint_t port;
   rgx_int_t backlog;
-  rgx_list_t locations;
+  rgx_array_t locations;
 } rgx_server_conf_t;
 
 typedef struct rgx_http_conf_s {
-  rgx_list_t upstreams;
-  rgx_list_t servers;
+  rgx_array_t upstreams;
+  rgx_array_t servers;
 } rgx_http_conf_t;
 
 typedef struct rgx_conf_tree_s {

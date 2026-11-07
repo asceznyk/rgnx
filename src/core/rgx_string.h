@@ -5,11 +5,18 @@
 
 #include <rgx_core.h>
 
+typedef struct {
+  size_t len;
+  u_char *data;
+} rgx_str_t;
+
 #define rgx_memcmp(s1, s2, n) memcmp(s1, s2, n)
 
 #define rgx_memzero(buf, n) (void) memset(buf, 0, n)
 #define rgx_memcpy(dst, src, n) (void) memcpy(dst, src, n)
 #define rgx_cpymem(dst, src, n) (((u_char *)memcpy(dst, src, n)) + (n))
+
+rgx_int_t rgx_atoi(u_char *line, size_t n);
 
 static u_char *
 rgx_find_last(u_char *s, size_t n, char c)

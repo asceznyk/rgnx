@@ -25,20 +25,15 @@ rgx_array_push_n(rgx_array_t *array, rgx_uint_t n)
   if (array->nelts + n > array->nalloc) {
     asize = n * array->esize;
     rgx_chunk_t *active = arena->active;
-    if (asize > active->size - active->used) {
-      nalloc = 2 * ((n >= array->nalloc) ? n : array->nalloc);
-      new = rgx_arena_alloc(arena, nalloc*array->esize);
-      if (new == NULL) {
-        rgx_log_error("rgx_array_push_n: rgx_arena_alloc FAILED!");
-        return NULL;
-      }
-      rgx_memcpy(new, array->elts, array->esize * array->nalloc);
-      array->elts = new;
-      array->nalloc = nalloc;
-    } else {
-      active->used += asize;
-      array->nalloc += n;
+    nalloc = 2 * ((n >= array->nalloc) ? n : array->nalloc);
+    new = rgx_arena_alloc(arena, nalloc*array->esize);
+    if (new == NULL) {
+      rgx_log_error("rgx_array_push_n: rgx_arena_alloc FAILED!");
+      return NULL;
     }
+    rgx_memcpy(new, array->elts, array->esize * array->nalloc);
+    array->elts = new;
+    array->nalloc = nalloc;
   }
   elt = (u_char *)array->elts + (array->nelts * array->esize);
   array->nelts += n;

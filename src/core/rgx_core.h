@@ -26,17 +26,6 @@ typedef unsigned char u_char;
 typedef int rgx_int_t;
 typedef unsigned int rgx_uint_t;
 
-typedef struct {
-  size_t len;
-  u_char *data;
-} rgx_str_t;
-
-typedef struct {
-  size_t len;
-  size_t capacity;
-  u_char *data;
-} rgx_token_buf_t;
-
 #include <rgx_log.h>
 #include <rgx_alloc.h>
 #include <rgx_string.h>
