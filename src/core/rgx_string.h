@@ -16,6 +16,7 @@ typedef struct {
 #define rgx_memcpy(dst, src, n) (void) memcpy(dst, src, n)
 #define rgx_cpymem(dst, src, n) (((u_char *)memcpy(dst, src, n)) + (n))
 
+rgx_str_t rgx_str_dup(rgx_arena_t *arena, rgx_str_t src);
 rgx_int_t rgx_atoi(u_char *line, size_t n);
 
 static u_char *

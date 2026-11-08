@@ -1,5 +1,18 @@
 #include <rgx_core.h>
 
+rgx_str_t
+rgx_str_dup(rgx_arena_t *arena, rgx_str_t src)
+{
+  rgx_str_t dst = {0};
+  dst.data = rgx_arena_alloc(arena, src.len);
+  if (dst.data == NULL) {
+    return dst;
+  }
+  dst.len = src.len;
+  rgx_memcpy(dst.data, src.data, src.len);
+  return dst;
+}
+
 rgx_int_t
 rgx_atoi(u_char *line, size_t n)
 {

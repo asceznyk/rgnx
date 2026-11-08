@@ -11,6 +11,7 @@
 #define RGX_CONF_DIRECTIVE_UPSTREAM "upstream"
 #define RGX_CONF_DIRECTIVE_LOCATION "location"
 #define RGX_CONF_DIRECTIVE_KEEPALIVE "keepalive"
+#define RGX_CONF_DIRECTIVE_LISTEN "listen"
 
 typedef enum {
   RGX_CONF_TOKEN_WORD,
@@ -25,6 +26,11 @@ typedef struct {
   size_t capacity;
   u_char *data;
 } rgx_token_buf_t;
+
+typedef struct {
+  char *name;
+  rgx_str_t *value;
+} rgx_conf_string_directive_t;
 
 typedef struct {
   rgx_conf_token_type_t type;
@@ -50,7 +56,7 @@ typedef struct rgx_location_conf_s {
   rgx_str_t path;
   rgx_str_t alias;
   rgx_str_t proxy_pass;
-  rgx_uint_t proxy_http_version;
+  rgx_str_t proxy_http_version;
 } rgx_location_conf_t;
 
 typedef struct rgx_upserver_conf_s {
