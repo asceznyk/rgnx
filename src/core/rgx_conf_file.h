@@ -3,7 +3,6 @@
 
 #include <rgx_core.h>
 
-#define RGX_CONF_LIST_MIN 16
 #define RGX_CONF_TOKEN_MAX 1024
 
 #define RGX_CONF_DIRECTIVE_HTTP "http"

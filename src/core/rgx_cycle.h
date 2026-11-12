@@ -5,9 +5,10 @@
 
 typedef struct rgx_cycle_s {
   rgx_arena_t *arena;
-  rgx_listening_t *listening;
+  rgx_array_t listening;
   rgx_connection_t *connections;
   rgx_uint_t connection_n;
+  rgx_str_t conf_file;
 } rgx_cycle_t;
 
 #endif

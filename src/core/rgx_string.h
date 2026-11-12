@@ -10,9 +10,10 @@ typedef struct {
   u_char *data;
 } rgx_str_t;
 
+#define rgx_strlen(s) strlen((const char *)s)
 #define rgx_memcmp(s1, s2, n) memcmp(s1, s2, n)
-
 #define rgx_memzero(buf, n) (void) memset(buf, 0, n)
+#define rgx_memset(buf, c, n) (void) memset(buf, c, n)
 #define rgx_memcpy(dst, src, n) (void) memcpy(dst, src, n)
 #define rgx_cpymem(dst, src, n) (((u_char *)memcpy(dst, src, n)) + (n))
 

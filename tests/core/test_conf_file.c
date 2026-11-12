@@ -6,7 +6,7 @@ test_read_conf_file()
   const char *cpath = "/home/asceznyk/programming/misc/mock_proxy/test.conf";
   rgx_str_t path = {
     .data = (u_char *) cpath,
-    .len = strlen(cpath)
+    .len = rgx_strlen(cpath)
   };
   rgx_conf_tree_t *tree = rgx_conf_tree_init(RGX_ARENA_BLOCK_SIZE);
   rgx_conf_file_read(tree, &path);

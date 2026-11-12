@@ -119,7 +119,7 @@ rgx_lex_conf_file(rgx_array_t *tokens, rgx_arena_t *arena, FILE *fp)
 static rgx_int_t
 rgx_token_compare(char *directive, rgx_conf_token_t token)
 {
-  size_t dlen = strlen(directive);
+  size_t dlen = rgx_strlen(directive);
   rgx_uint_t v = (
     token.value.len == dlen &&
     rgx_memcmp(token.value.data, directive, dlen) == 0
