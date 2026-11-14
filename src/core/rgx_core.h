@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <time.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 
@@ -17,6 +20,11 @@
 #define RGX_DONE -4
 #define RGX_DECLINED -5
 #define RGX_ABORT -6
+
+#define RGX_LINEFEED "\x0a"
+
+#define rgx_stdout STDOUT_FILENO
+#define rgx_stderr STDERR_FILENO
 
 #define rgx_align_up(n, align) (((n) + (align) - 1) & ~((align) - 1))
 #define rgx_align_down(n, align) ((n) & ~((align) - 1))

@@ -1,8 +1,6 @@
 #ifndef RGX_STRING_H
 #define RGX_STRING_H
 
-#include <string.h>
-
 #include <rgx_core.h>
 
 typedef struct {
@@ -11,6 +9,7 @@ typedef struct {
 } rgx_str_t;
 
 #define rgx_strlen(s) strlen((const char *)s)
+#define rgx_strcmp(s1, s2) strcmp((const char *) s1, (const char *) s2)
 #define rgx_memcmp(s1, s2, n) memcmp(s1, s2, n)
 #define rgx_memzero(buf, n) (void) memset(buf, 0, n)
 #define rgx_memset(buf, c, n) (void) memset(buf, c, n)

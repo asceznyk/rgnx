@@ -23,10 +23,8 @@ rgx_array_init(
   array->nalloc = n;
   array->arena = arena;
   array->elts = (void *)rgx_arena_alloc(arena, n*size);
-  if (array->elts == NULL) {
-    rgx_log_error("rgx_array_init: rgx_arena_alloc FAILED!");
+  if (array->elts == NULL)
     return RGX_ERROR;
-  }
   return RGX_OK;
 }
 

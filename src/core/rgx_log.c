@@ -1,6 +1,6 @@
 #include <rgx_log.h>
 
-rgx_log_level_t g_log_level = RGX_LOG_INFO;
+rgx_log_level_t rgx_log_level = RGX_LOG_INFO;
 
 static const char* rgx_lvl_str(rgx_log_level_t l);
 
@@ -15,6 +15,26 @@ rgx_lvl_str(rgx_log_level_t l)
   }
 }
 
+rgx_int_t
+rgx_lvl_int(u_char *level)
+{
+  if (strcmp((char *) level, "DEBUG") == 0)
+    return RGX_LOG_DEBUG;
+  if (strcmp((char *) level, "INFO") == 0)
+    return RGX_LOG_INFO;
+  if (strcmp((char *) level, "WARN") == 0)
+    return RGX_LOG_WARN;
+  if (strcmp((char *) level, "ERROR") == 0)
+    return RGX_LOG_ERROR;
+  return RGX_LOG_INFO;
+}
+
+void
+rgx_write_stderr(char *text)
+{
+  write(rgx_stderr, text, rgx_strlen(text));
+}
+
 void
 rgx_log_write(
   rgx_log_level_t level,
@@ -24,7 +44,7 @@ rgx_log_write(
   ...
 )
 {
-  if (level < g_log_level) return;
+  if (level < rgx_log_level) return;
   char msg[1024];
   time_t t = time(NULL);
   char timebuf[20];
