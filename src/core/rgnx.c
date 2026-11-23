@@ -71,6 +71,11 @@ rgx_get_options(int argc, char *argv[])
             rgx_log_level = (rgx_log_level_t) rgx_lvl_int((u_char *)argv[i]);
             goto next;
           }
+          rgx_log_error(
+            "rgx_get_options: option \"-l\" requires one of these - %s",
+            "[DEBUG, INFO, WARN, ERROR]"
+          );
+          return RGX_ERROR;
         default:
           rgx_log_error("rgx_get_options: invalid option \"%c\"", *(p-1));
           return RGX_ERROR;
@@ -85,11 +90,25 @@ rgx_get_options(int argc, char *argv[])
 int
 main(int argc, char *argv[])
 {
+  rgx_cycle_t *cycle, init_cycle;
   if (rgx_get_options(argc, argv) != RGX_OK)
     return 1;
   if (rgx_show_version) {
     rgx_show_version_info();
     return 0;
+  }
+  rgx_memzero(&init_cycle, sizeof(rgx_cycle_t));
+  if (rgx_conf_file) {
+    init_cycle.conf_file.len = rgx_strlen(rgx_conf_file);
+    init_cycle.conf_file.data = rgx_conf_file;
+    rgx_log_info(
+      "init_cycle.conf_file = %.*s",
+      (int)init_cycle.conf_file.len,
+      init_cycle.conf_file.data
+    );
+  } else {
+    rgx_log_error("main: config file not given!");
+    return 1;
   }
   return 0;
 }

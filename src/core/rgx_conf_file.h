@@ -3,47 +3,12 @@
 
 #include <rgx_core.h>
 
-#define RGX_CONF_TOKEN_MAX 1024
+#define RGX_CONF_OK NULL
+#define RGX_CONF_ERROR (void *) -1
 
-#define RGX_CONF_DIRECTIVE_HTTP "http"
-#define RGX_CONF_DIRECTIVE_SERVER "server"
-#define RGX_CONF_DIRECTIVE_UPSTREAM "upstream"
-#define RGX_CONF_DIRECTIVE_LOCATION "location"
-#define RGX_CONF_DIRECTIVE_KEEPALIVE "keepalive"
-#define RGX_CONF_DIRECTIVE_LISTEN "listen"
-
-typedef enum {
-  RGX_CONF_TOKEN_WORD,
-  RGX_CONF_TOKEN_LBRACE,
-  RGX_CONF_TOKEN_RBRACE,
-  RGX_CONF_TOKEN_SEMICOLON,
-  RGX_CONF_TOKEN_EOF
-} rgx_conf_token_type_t;
-
-typedef struct {
-  size_t len;
-  size_t capacity;
-  u_char *data;
-} rgx_token_buf_t;
-
-typedef struct {
-  char *name;
-  rgx_str_t *value;
-} rgx_conf_string_directive_t;
-
-typedef struct {
-  rgx_conf_token_type_t type;
-  rgx_str_t value;
-} rgx_conf_token_t;
-
-typedef enum {
-  RGX_CONF_CTX_MAIN,
-  RGX_CONF_CTX_HTTP,
-  RGX_CONF_CTX_UPSTREAM,
-  RGX_CONF_CTX_SERVER,
-  RGX_CONF_CTX_LOCATION,
-  RGX_CONF_CTX_UPSERVER,
-} rgx_conf_ctx_t;
+#define RGX_CONF_BLOCK_START 1
+#define RGX_CONF_BLOCK_DONE 2
+#define RGX_CONF_FILE_DONE 3
 
 typedef struct {
   rgx_array_t *tokens;
@@ -80,16 +45,16 @@ typedef struct rgx_http_conf_s {
   rgx_array_t servers;
 } rgx_http_conf_t;
 
-typedef struct rgx_conf_tree_s {
+typedef struct rgx_conf_root_s {
   rgx_http_conf_t http;
   rgx_arena_t *arena;
-} rgx_conf_tree_t;
+} rgx_conf_root_t;
 
-rgx_conf_tree_t *rgx_conf_tree_init(size_t block_size);
-rgx_int_t rgx_conf_file_read(
-  rgx_conf_tree_t *tree, rgx_str_t *filename
+rgx_conf_root_t *rgx_conf_init(size_t block_size);
+char *rgx_conf_parse(
+  rgx_conf_root_t *root, rgx_str_t *filename
 );
-void rgx_conf_tree_destroy(rgx_conf_tree_t *tree);
+void rgx_conf_destroy(rgx_conf_root_t *root);
 
 #endif
 

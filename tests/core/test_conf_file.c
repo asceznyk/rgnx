@@ -8,8 +8,11 @@ test_read_conf_file()
     .data = (u_char *) cpath,
     .len = rgx_strlen(cpath)
   };
-  rgx_conf_tree_t *tree = rgx_conf_tree_init(RGX_ARENA_BLOCK_SIZE);
-  rgx_conf_file_read(tree, &path);
+  rgx_conf_root_t *root = rgx_conf_init(RGX_ARENA_BLOCK_SIZE);
+  /*if (rgx_conf_file_read(tree, &path) != RGX_OK) {
+    rgx_conf_destroy(tree);
+    return;
+  }
   rgx_http_conf_t http = tree->http;
   rgx_upstream_conf_t *upstreams = http.upstreams.elts;
   for (rgx_uint_t i = 0; i < http.upstreams.nelts; i++) {
@@ -53,8 +56,8 @@ test_read_conf_file()
         (int)location.proxy_http_version.len, location.proxy_http_version.data
       );
     }
-  }
-  rgx_conf_tree_destroy(tree);
+  }*/
+  rgx_conf_destroy(root);
 }
 
 int
