@@ -10,49 +10,58 @@
 #define RGX_CONF_BLOCK_DONE 2
 #define RGX_CONF_FILE_DONE 3
 
-typedef struct {
-  rgx_array_t *tokens;
-  rgx_uint_t pos;
-  rgx_arena_t *arena;
-} rgx_conf_parser_t;
+typedef enum {
+  RGX_CONF_CTX_MAIN,
+  RGX_CONF_CTX_HTTP,
+  RGX_CONF_CTX_UPSTREAM,
+  RGX_CONF_CTX_SERVER,
+  RGX_CONF_CTX_LOCATION,
+  RGX_CONF_CTX_UPSTREAM_SERVER,
+} rgx_conf_ctx_t;
 
-typedef struct rgx_location_conf_s {
+typedef struct rgx_conf_location_s {
   rgx_str_t path;
   rgx_str_t alias;
   rgx_str_t proxy_pass;
   rgx_str_t proxy_http_version;
-} rgx_location_conf_t;
+} rgx_conf_location_t;
 
-typedef struct rgx_upserver_conf_s {
+typedef struct rgx_conf_upstream_server_s {
   rgx_str_t host;
   rgx_uint_t port;
-} rgx_upserver_conf_t;
+} rgx_conf_upstream_server_t;
 
-typedef struct rgx_upstream_conf_s {
+typedef struct rgx_conf_upstream_s {
   rgx_str_t name;
   rgx_array_t servers;
   rgx_uint_t keepalive;
-} rgx_upstream_conf_t;
+} rgx_conf_upstream_t;
 
-typedef struct rgx_server_conf_s {
+typedef struct rgx_conf_server_s {
   rgx_uint_t port;
   rgx_int_t backlog;
   rgx_array_t locations;
-} rgx_server_conf_t;
+} rgx_conf_server_t;
 
-typedef struct rgx_http_conf_s {
+typedef struct rgx_conf_http_s {
   rgx_array_t upstreams;
   rgx_array_t servers;
-} rgx_http_conf_t;
+} rgx_conf_http_t;
 
 typedef struct rgx_conf_root_s {
-  rgx_http_conf_t http;
+  rgx_conf_http_t http;
   rgx_arena_t *arena;
 } rgx_conf_root_t;
 
+typedef struct {
+  rgx_conf_ctx_t ctx;
+  void *conf;
+  rgx_conf_root_t *root;
+} rgx_conf_t;
+
 rgx_conf_root_t *rgx_conf_init(size_t block_size);
 char *rgx_conf_parse(
-  rgx_conf_root_t *root, rgx_str_t *filename
+  rgx_conf_t *conf, rgx_str_t *filename
 );
 void rgx_conf_destroy(rgx_conf_root_t *root);
 

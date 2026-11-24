@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS := -g -O0 -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -std=c11
-CPPFLAGS := -D_POSIX_C_SOURCE=200809L -Isrc -Isrc/core -Isrc/event
+CPPFLAGS := -D_POSIX_C_SOURCE=200809L -Isrc -Isrc/core -Isrc/event -Isrc/os
 LDFLAGS := -fsanitize=address
 
 SRC := $(shell find src -name '*.c')

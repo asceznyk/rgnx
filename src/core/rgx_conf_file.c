@@ -31,31 +31,23 @@ rgx_conf_destroy(rgx_conf_root_t *root)
 }
 
 char *
-rgx_conf_parse(rgx_conf_root_t *root, rgx_str_t *filename)
+rgx_conf_parse(rgx_conf_t *conf, rgx_str_t *filename)
 {
-  //TODO: a lot of crap!
+  rgx_fd_t fd;
+  enum {
+    parse_file = 0,
+    parse_block,
+    parse_param
+  } type;
+  if (filename) {
+    fd = rgx_open_file(filename->data, RGX_FILE_RDONLY, RGX_FILE_OPEN, 0);
+    rgx_log_info("rgx_conf_parse: fd = %d", fd);
+    if (fd == RGX_INVALID_FILE) {
+      rgx_log_error("rgx_conf_parse: INVALID file");
+      return RGX_CONF_ERROR;
+    }
+  } //TODO: more stuff!
   return RGX_CONF_OK;
 }
 
-/*rgx_int_t
-rgx_conf_file_read(rgx_conf_root_t *tree, rgx_str_t *path)
-{
-  assert(tree != NULL);
-  FILE *fp;
-  u_char *filename = path->data;
-  fp = fopen((const char *)(filename), "r");
-  if (fp == NULL) {
-    rgx_log_error(
-      "rgx_conf_file_read: error opening config file = %s!",
-      filename
-    );
-    return RGX_ERROR;
-  }
-  if (rgx_read_conf_tree(tree, fp) == RGX_ERROR) {
-    fclose(fp);
-    return RGX_ERROR;
-  }
-  fclose(fp);
-  return RGX_OK;
-}*/
 

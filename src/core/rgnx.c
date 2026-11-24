@@ -9,7 +9,8 @@ static rgx_uint_t rgx_show_version;
 static u_char *rgx_conf_file;
 
 static void
-rgx_show_version_info(void) {
+rgx_show_version_info(void)
+{
   rgx_write_stderr("rgnx version: " RGNX_VER_BUILD RGX_LINEFEED);
   if (rgx_show_help) {
     rgx_write_stderr(
