@@ -1,33 +1,12 @@
 #include <rgx_core.h>
 
-rgx_conf_root_t *
-rgx_conf_init(size_t block_size)
-{
-  rgx_arena_t *arena = rgx_arena_init(block_size);
-  if (arena == NULL) {
-    rgx_log_error("rgx_conf_init: rgx_arena_init FAILED!");
-    return NULL;
-  }
-  rgx_conf_root_t *root = (void *)rgx_arena_alloc(
-    arena,
-    sizeof(rgx_conf_root_t)
-  );
-  if (root == NULL) {
-    rgx_log_error("rgx_conf_init: rgx_arena_alloc FAILED!");
-    rgx_arena_destroy(arena);
-    return NULL;
-  }
-  root->arena = arena;
-  return root;
-}
+static rgx_int_t rgx_conf_read_token(rgx_conf_t *conf);
 
-void
-rgx_conf_destroy(rgx_conf_root_t *root)
+static rgx_int_t
+rgx_conf_read_token(rgx_conf_t *conf)
 {
-  assert(root != NULL);
-  assert(root->arena != NULL);
-  rgx_arena_destroy(root->arena);
-  root = NULL;
+  //rgx_buf_t *buf;
+  return RGX_ERROR;
 }
 
 char *

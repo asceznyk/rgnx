@@ -15,7 +15,7 @@ typedef enum {
   RGX_CONF_CTX_HTTP,
   RGX_CONF_CTX_UPSTREAM,
   RGX_CONF_CTX_SERVER,
-  RGX_CONF_CTX_LOCATION,
+  RGX_CONF_CTX_SERVER_LOCATION,
   RGX_CONF_CTX_UPSTREAM_SERVER,
 } rgx_conf_ctx_t;
 
@@ -50,20 +50,18 @@ typedef struct rgx_conf_http_s {
 
 typedef struct rgx_conf_root_s {
   rgx_conf_http_t http;
-  rgx_arena_t *arena;
 } rgx_conf_root_t;
 
 typedef struct {
   rgx_conf_ctx_t ctx;
-  void *conf;
+  void *cptr;
   rgx_conf_root_t *root;
+  rgx_arena_t *arena;
 } rgx_conf_t;
 
-rgx_conf_root_t *rgx_conf_init(size_t block_size);
 char *rgx_conf_parse(
   rgx_conf_t *conf, rgx_str_t *filename
 );
-void rgx_conf_destroy(rgx_conf_root_t *root);
 
 #endif
 
