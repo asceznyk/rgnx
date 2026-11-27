@@ -4,6 +4,7 @@
 #include <rgx_core.h>
 
 typedef int rgx_fd_t;
+typedef struct stat rgx_file_info_t;
 
 #define RGX_INVALID_FILE -1
 #define RGX_FILE_ERROR -1
@@ -18,5 +19,7 @@ typedef int rgx_fd_t;
   open((const char *)name, mode|create, access)
 
 #define rgx_close_file close
+
+#define rgx_file_size(sb) (sb)->st_size
 
 #endif

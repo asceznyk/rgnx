@@ -53,11 +53,20 @@ typedef struct rgx_conf_root_s {
 } rgx_conf_root_t;
 
 typedef struct {
+  rgx_file_t file;
+  rgx_buf_t *buffer;
+  rgx_buf_t *dump;
+  rgx_uint_t line;
+} rgx_conf_file_t;
+
+struct rgx_conf_s {
   rgx_conf_ctx_t ctx;
   void *cptr;
   rgx_conf_root_t *root;
+  rgx_array_t *args;
+  rgx_conf_file_t *conf_file;
   rgx_arena_t *arena;
-} rgx_conf_t;
+};
 
 char *rgx_conf_parse(
   rgx_conf_t *conf, rgx_str_t *filename

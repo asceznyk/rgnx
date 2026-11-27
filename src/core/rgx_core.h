@@ -13,6 +13,13 @@
 #include <sys/socket.h>
 #include <sys/epoll.h>
 
+typedef struct rgx_conf_s rgx_conf_t;
+typedef struct rgx_file_s rgx_file_t;
+typedef struct rgx_event_s rgx_event_t;
+typedef struct rgx_connection_s rgx_connection_t;
+
+typedef void (*rgx_event_handler_pt)(rgx_event_t *ev);
+
 #define RGX_OK 0
 #define RGX_ERROR -1
 #define RGX_AGAIN -2
@@ -34,23 +41,20 @@ typedef unsigned char u_char;
 typedef int rgx_int_t;
 typedef unsigned int rgx_uint_t;
 
+#include <rgx_files.h>
 #include <rgx_log.h>
 #include <rgx_alloc.h>
 #include <rgx_arena.h>
 #include <rgx_string.h>
 #include <rgx_array.h>
 #include <rgx_list.h>
-#include <rgx_conf_file.h>
-
-typedef struct rgx_event_s rgx_event_t;
-typedef struct rgx_connection_s rgx_connection_t;
-
-typedef void (*rgx_event_handler_pt)(rgx_event_t *ev);
-
+#include <rgx_buf.h>
+#include <rgx_file.h>
 #include <rgx_connection.h>
 #include <rgx_cycle.h>
+#include <rgx_conf_file.h>
+
 #include <rgx_event.h>
-#include <rgx_files.h>
 
 #define LF (u_char) '\n'
 #define CR (u_char) '\r'
