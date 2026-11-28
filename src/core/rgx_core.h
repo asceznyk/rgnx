@@ -12,6 +12,7 @@
 #include <time.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
+#include <sys/stat.h>
 
 typedef struct rgx_conf_s rgx_conf_t;
 typedef struct rgx_file_s rgx_file_t;

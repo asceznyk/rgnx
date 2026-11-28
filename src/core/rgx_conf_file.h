@@ -3,6 +3,8 @@
 
 #include <rgx_core.h>
 
+#define RGX_CONF_BUFFER 4096
+
 #define RGX_CONF_OK NULL
 #define RGX_CONF_ERROR (void *) -1
 

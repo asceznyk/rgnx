@@ -22,4 +22,6 @@ typedef struct stat rgx_file_info_t;
 
 #define rgx_file_size(sb) (sb)->st_size
 
+#define rgx_fd_info(fd, sb) fstat(fd, sb)
+
 #endif
